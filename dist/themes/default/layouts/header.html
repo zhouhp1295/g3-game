@@ -1,0 +1,45 @@
+<header class="header">
+    <div class="container">
+        <h1 class="logo">
+            <a href="{{cfg.Host}}/" title="{{cfg.Title}}"
+               style="background-image: url({{url(cfg.Logo)}}); background-size: 100% 100%;">{{cfg.Title}}
+            </a>
+        </h1>
+        <div class="web-title">{{cfg.Title}}</div>
+        <ul class="site-nav site-navbar">
+            <li class="navto-home"><a href="{{cfg.Host}}/">网站首页</a></li>
+            {{range menu := menus}}
+            <li class="navto-front">
+                <a href="{{url(menu.Url)}}" target="_blank">
+                    {{menu.Label}}
+                    {{if isset(menu.Children) && len(menu.Children)}}<i class="fa fa-angle-down"></i>{{end}}
+                </a>
+                {{if isset(menu.Children) && len(menu.Children)}}
+                <ul class="sub-menu">
+                    {{range child := menu.Children}}
+                    <li>
+                        <a href="{{url(child.Get(`url`))}}" class="a1" target="_blank" >
+                            {{child.Get(`label`)}}
+                        </a>
+                    </li>
+                    {{end}}
+                </ul>
+                {{end}}
+            </li>
+            {{end}}
+            <!--
+            <li class="navto-search"><a href="javascript:;" class="search-show active"><i class="fa fa-search"></i></a></li>
+            -->
+        </ul>
+        <i class="fa fa-bars m-icon-nav"></i> </div>
+</header>
+<div class="site-search">
+    <div class="container">
+        <form name="formsearch" class="site-search-form" method="post" action="#">
+            <input name="q" type="text" class="search-input" placeholder="输入关键字搜索">
+            <button class="search-btn" type="submit"><i class="fa fa-search"></i></button>
+            <input type="hidden" name="show" value="title">
+            <input type="hidden" name="tempid" value="1">
+        </form>
+    </div>
+</div>
