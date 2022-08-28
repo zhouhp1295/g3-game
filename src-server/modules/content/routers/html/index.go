@@ -124,7 +124,7 @@ func parseIntParam(ctx *gin.Context, field string, min int) int {
 	param = strings.Replace(param, ".html", "", 1)
 	i, err := strconv.Atoi(param)
 	if err != nil {
-		g3.Error("err", zap.String("param", param), zap.Error(err))
+		g3.ZL().Error("err", zap.String("param", param), zap.Error(err))
 		return min
 	}
 	return i
@@ -133,7 +133,7 @@ func parseIntParam(ctx *gin.Context, field string, min int) int {
 func indexHandler(ctx *gin.Context) {
 	view, err := jetEngine().Set.GetTemplate("index.html")
 	if err != nil {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		errorPage(ctx, err.Error())
 		return
 	}
@@ -148,7 +148,7 @@ func indexHandler(ctx *gin.Context) {
 
 	err = view.Execute(ctx.Writer, data, nil)
 	if err != nil {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		errorPage(ctx, err.Error())
 	}
 }
@@ -156,7 +156,7 @@ func indexHandler(ctx *gin.Context) {
 func latestHandler(ctx *gin.Context) {
 	view, err := jetEngine().Set.GetTemplate("latest.html")
 	if err != nil {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		errorPage(ctx, err.Error())
 		return
 	}
@@ -174,7 +174,7 @@ func latestHandler(ctx *gin.Context) {
 	err = view.Execute(ctx.Writer, data, nil)
 
 	if err != nil {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		errorPage(ctx, err.Error())
 	}
 }

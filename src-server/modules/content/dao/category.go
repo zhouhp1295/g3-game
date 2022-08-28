@@ -167,7 +167,7 @@ func (dao *contentCategoryDAO) UpdateInMenu(pk int64, inMenu string, inMenuSort 
 	err := crud.DbSess().Select([]string{"in_menu", "in_menu_sort", "updated_by", "updated_at"}).Updates(category).Error
 
 	if err != nil {
-		g3.Error("database err", zap.Error(err))
+		g3.ZL().Error("database err", zap.Error(err))
 		return false
 	}
 	dao.ClearCache()
@@ -184,7 +184,7 @@ func (dao *contentCategoryDAO) UpdateInBanner(pk int64, inBanner string, inBanne
 	err := crud.DbSess().Select([]string{"in_banner", "in_banner_sort", "updated_by", "updated_at"}).Updates(category).Error
 
 	if err != nil {
-		g3.Error("database err", zap.Error(err))
+		g3.ZL().Error("database err", zap.Error(err))
 		return false
 	}
 	dao.ClearCache()

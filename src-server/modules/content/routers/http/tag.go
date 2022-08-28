@@ -60,13 +60,13 @@ func (api *_contentTagApi) handleFastInsert(ctx *gin.Context) {
 	params := tagFastInsertParams{}
 	err := net.ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		net.FailedMessage(ctx, "参数错误")
 		return
 	}
 	m := dao.ContentTagDao.InsertOrGetByTitle(params.Title)
 	if m == nil {
-		g3.Error("insert or get failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("insert or get failed. please check", zap.Reflect("data", params))
 		net.FailedMessage(ctx, "操作失败,请稍后重试")
 		return
 	}

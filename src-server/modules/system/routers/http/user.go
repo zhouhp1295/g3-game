@@ -90,37 +90,37 @@ func (api *_sysUserApi) handleLogin(ctx *gin.Context) {
 	var params userLoginParams
 	err := net.ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		net.FailedMessage(ctx, "参数错误")
 		return
 	}
 	if !service.CaptchaService.VerifyString(params.UUID, params.Code) {
-		g3.Error("verify captcha failed. please check")
+		g3.ZL().Error("verify captcha failed. please check")
 		net.FailedMessage(ctx, "验证码错误")
 		return
 	}
 	res := api.Dao.FindOneByColumn("username", params.Username)
 	if res == nil {
-		g3.Error("verify captcha failed. please check")
+		g3.ZL().Error("verify captcha failed. please check")
 		net.FailedMessage(ctx, "用户不存在")
 		return
 	}
 	user, _ := res.(*model.SysUser)
 
 	if !helpers.PasswordVerify(user.Password, params.Password) {
-		g3.Error("password is incorrect. please check")
+		g3.ZL().Error("password is incorrect. please check")
 		net.FailedMessage(ctx, "密码错误")
 		return
 	}
 	if user.Status != crud.FlagYes {
-		g3.Error("user status is incorrect. please check")
+		g3.ZL().Error("user status is incorrect. please check")
 		net.FailedMessage(ctx, "用户已被禁用，请联系管理员")
 		return
 	}
 	roleIdentifiers, _ := dao.SysRoleDao.GetPermissions(user.Roles)
 	token, err := g3.GetGin().Group("/api").NewJwtToken(user.Id, strings.Join(roleIdentifiers, ","))
 	if err != nil {
-		g3.Error("create api token failed. please check")
+		g3.ZL().Error("create api token failed. please check")
 		net.FailedServerError(ctx, err.Error(), "")
 		return
 	}
@@ -241,14 +241,14 @@ func (api *_sysUserApi) handleUpdateUserPassword(ctx *gin.Context) {
 func (api *_sysUserApi) handleUpdateUserAvatar(ctx *gin.Context) {
 	file, err := ctx.FormFile("avatar")
 	if err != nil {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		net.FailedMessage(ctx, "操作失败:"+err.Error())
 		return
 	}
 
 	filePath, msg, ok := service.UploadService.UploadImage(file)
 	if !ok {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		net.FailedMessage(ctx, "操作失败:"+msg)
 		return
 	}

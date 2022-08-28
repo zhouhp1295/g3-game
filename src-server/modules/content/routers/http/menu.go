@@ -62,17 +62,17 @@ func (api *_contentMenuApi) handleUpdateIsBlank(ctx *gin.Context) {
 	params := updateMenuParams{}
 	err := net.ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		net.FailedMessage(ctx, "参数错误")
 		return
 	}
 	if api.Dao.CountByPk(params.Id) == 0 {
-		g3.Error("record not exist. please check", zap.Int64("id", params.Id))
+		g3.ZL().Error("record not exist. please check", zap.Int64("id", params.Id))
 		net.FailedNotFound(ctx)
 		return
 	}
 	if len(params.IsBlank) == 0 {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		net.FailedMessage(ctx, "参数错误")
 		return
 	}
@@ -81,7 +81,7 @@ func (api *_contentMenuApi) handleUpdateIsBlank(ctx *gin.Context) {
 	if api.Dao.UpdateColumn(params.Id, "is_blank", params.IsBlank, operator) {
 		net.SuccessDefault(ctx)
 	} else {
-		g3.Error("update failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("update failed. please check", zap.Reflect("data", params))
 		net.FailedMessage(ctx, "操作失败, 请稍后重试")
 	}
 }

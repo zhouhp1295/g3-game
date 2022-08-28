@@ -29,7 +29,7 @@ func (service *captchaService) GetStringImg() (captchaId, captchaBase64 string) 
 	c := base64Captcha.NewCaptcha(driver, store)
 	captchaId, captchaBase64, err := c.Generate()
 	if err != nil {
-		g3.Error("GetStringImg", zap.Error(err))
+		g3.ZL().Error("GetStringImg", zap.Error(err))
 	}
 	return
 }

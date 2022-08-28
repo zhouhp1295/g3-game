@@ -26,7 +26,7 @@ func (dao *sysUserDAO) CreateSuperUser(username, password string) bool {
 	if existNum == 0 {
 		hashedPwd, err := helpers.PasswordHash(password)
 		if err != nil {
-			g3.Fatal("createSuperUser Failed", zap.Error(err))
+			g3.ZL().Fatal("createSuperUser Failed", zap.Error(err))
 			return false
 		}
 		superUser := new(model.SysUser)
@@ -37,7 +37,7 @@ func (dao *sysUserDAO) CreateSuperUser(username, password string) bool {
 		superUser.Roles = utils.ToString(SuperRoleID)
 		err = crud.DbSess().Create(superUser).Error
 		if err != nil {
-			g3.Fatal("createSuperUser Failed", zap.Error(err))
+			g3.ZL().Fatal("createSuperUser Failed", zap.Error(err))
 			return false
 		}
 		return true

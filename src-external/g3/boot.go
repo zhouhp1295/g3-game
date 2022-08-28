@@ -105,22 +105,6 @@ func AppPath() string {
 
 var defaultLogger *zap.Logger
 
-func Debug(msg string, fields ...zap.Field) {
-	defaultLogger.Debug(msg, fields...)
-}
-
-func Info(msg string, fields ...zap.Field) {
-	defaultLogger.Info(msg, fields...)
-}
-
-func Warn(msg string, fields ...zap.Field) {
-	defaultLogger.Warn(msg, fields...)
-}
-
-func Error(msg string, fields ...zap.Field) {
-	defaultLogger.Error(msg, fields...)
-}
-
-func Fatal(msg string, fields ...zap.Field) {
-	defaultLogger.Fatal(msg, fields...)
+func ZL() *zap.Logger {
+	return defaultLogger
 }

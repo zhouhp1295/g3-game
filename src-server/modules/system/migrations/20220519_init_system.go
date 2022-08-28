@@ -123,12 +123,12 @@ func M20220519InitSystem() func() error {
 			//初始化字典数据
 			err := CreateSysDictType(tx, baseSysDictTypeData)
 			if err != nil {
-				g3.Fatal("20220519_init_system", zap.Error(err))
+				g3.ZL().Fatal("20220519_init_system", zap.Error(err))
 				return err
 			}
 			err = CreateSysDictData(tx, baseSysDictDataData)
 			if err != nil {
-				g3.Fatal("20220519_init_system", zap.Error(err))
+				g3.ZL().Fatal("20220519_init_system", zap.Error(err))
 				return err
 			}
 			//初始化新密码
@@ -141,12 +141,12 @@ func M20220519InitSystem() func() error {
 			//初始化角色
 			err = CreateSysRoles(tx, baseRoleData)
 			if err != nil {
-				g3.Fatal("20220519_init_system", zap.Error(err))
+				g3.ZL().Fatal("20220519_init_system", zap.Error(err))
 				return err
 			}
 			err = CreateSystemMenus(tx, baseMenuData)
 			if err != nil {
-				g3.Fatal("20220519_init_system", zap.Error(err))
+				g3.ZL().Fatal("20220519_init_system", zap.Error(err))
 				return err
 			}
 			return nil

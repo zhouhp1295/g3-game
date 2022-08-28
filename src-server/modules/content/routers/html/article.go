@@ -43,7 +43,7 @@ func articleInfoHandler(ctx *gin.Context) {
 	}
 	view, err := jetEngine().Set.GetTemplate("article.html")
 	if err != nil {
-		g3.Error("ArticleInfoHandler", zap.Error(err))
+		g3.ZL().Error("ArticleInfoHandler", zap.Error(err))
 		errorPage(ctx, err.Error())
 		return
 	}
@@ -57,7 +57,7 @@ func articleInfoHandler(ctx *gin.Context) {
 
 	err = view.Execute(ctx.Writer, data, nil)
 	if err != nil {
-		g3.Error("IndexHandler View Execute", zap.Error(err))
+		g3.ZL().Error("IndexHandler View Execute", zap.Error(err))
 		errorPage(ctx, err.Error())
 	}
 }

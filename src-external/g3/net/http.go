@@ -97,12 +97,12 @@ func (baseApi *BaseApi) HandleGet(ctx *gin.Context) {
 	params := IdParams{}
 	err := ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		FailedMessage(ctx, "参数错误")
 		return
 	}
 	if baseApi.Dao.CountByPk(params.Id) == 0 {
-		g3.Error("record not exist. please check", zap.Int64("id", params.Id))
+		g3.ZL().Error("record not exist. please check", zap.Int64("id", params.Id))
 		FailedNotFound(ctx)
 		return
 	}
@@ -117,17 +117,17 @@ func (baseApi *BaseApi) HandleInsert(ctx *gin.Context) {
 	params := baseApi.Dao.GetModel().NewModel()
 	err := ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		FailedMessage(ctx, "参数错误")
 		return
 	}
 	if baseApi.Dao.CountByPk(params.GetId()) != 0 {
-		g3.Error("duplicate primary key. please check")
+		g3.ZL().Error("duplicate primary key. please check")
 		FailedMessage(ctx, "主键重复")
 		return
 	}
 	if _ok, _msg := baseApi.Dao.BeforeInsert(params); !_ok {
-		g3.Error("insert validate failed", zap.String("msg", _msg))
+		g3.ZL().Error("insert validate failed", zap.String("msg", _msg))
 		FailedMessage(ctx, "操作失败:"+_msg)
 		return
 	}
@@ -136,7 +136,7 @@ func (baseApi *BaseApi) HandleInsert(ctx *gin.Context) {
 		baseApi.Dao.AfterInsert(params)
 		SuccessData(ctx, params)
 	} else {
-		g3.Error("insert failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("insert failed. please check", zap.Reflect("data", params))
 		FailedMessage(ctx, "操作失败, 请稍后重试")
 	}
 }
@@ -145,17 +145,17 @@ func (baseApi *BaseApi) HandleUpdate(ctx *gin.Context) {
 	params := baseApi.Dao.GetModel().NewModel()
 	err := ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		FailedMessage(ctx, "参数错误")
 		return
 	}
 	if baseApi.Dao.CountByPk(params.GetId()) == 0 {
-		g3.Error("record not exist. please check", zap.Int64("id", params.GetId()))
+		g3.ZL().Error("record not exist. please check", zap.Int64("id", params.GetId()))
 		FailedNotFound(ctx)
 		return
 	}
 	if _ok, _msg := baseApi.Dao.BeforeUpdate(params); !_ok {
-		g3.Error("update validate failed", zap.String("msg", _msg))
+		g3.ZL().Error("update validate failed", zap.String("msg", _msg))
 		FailedMessage(ctx, "操作失败:"+_msg)
 		return
 	}
@@ -164,7 +164,7 @@ func (baseApi *BaseApi) HandleUpdate(ctx *gin.Context) {
 		baseApi.Dao.AfterUpdate(params)
 		SuccessDefault(ctx)
 	} else {
-		g3.Error("update failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("update failed. please check", zap.Reflect("data", params))
 		FailedMessage(ctx, "操作失败, 请稍后重试")
 	}
 }
@@ -173,17 +173,17 @@ func (baseApi *BaseApi) HandleUpdateStatus(ctx *gin.Context) {
 	params := UpdateStatusParams{}
 	err := ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		FailedMessage(ctx, "参数错误")
 		return
 	}
 	if baseApi.Dao.CountByPk(params.Id) == 0 {
-		g3.Error("record not exist. please check", zap.Int64("id", params.Id))
+		g3.ZL().Error("record not exist. please check", zap.Int64("id", params.Id))
 		FailedNotFound(ctx)
 		return
 	}
 	if len(params.Status) == 0 {
-		g3.Error("status is empty. please check")
+		g3.ZL().Error("status is empty. please check")
 		FailedMessage(ctx, "参数错误")
 		return
 	}
@@ -192,7 +192,7 @@ func (baseApi *BaseApi) HandleUpdateStatus(ctx *gin.Context) {
 	if baseApi.Dao.UpdateStatus(params.Id, params.Status, operator) {
 		SuccessDefault(ctx)
 	} else {
-		g3.Error("update status failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("update status failed. please check", zap.Reflect("data", params))
 		FailedMessage(ctx, "操作失败, 请稍后重试")
 	}
 }
@@ -201,12 +201,12 @@ func (baseApi *BaseApi) HandleDelete(ctx *gin.Context) {
 	params := IdParams{}
 	err := ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		FailedMessage(ctx, "参数错误")
 		return
 	}
 	if baseApi.Dao.CountByPk(params.Id) == 0 {
-		g3.Error("record not exist. please check", zap.Int64("id", params.Id))
+		g3.ZL().Error("record not exist. please check", zap.Int64("id", params.Id))
 		FailedNotFound(ctx)
 		return
 	}
@@ -214,7 +214,7 @@ func (baseApi *BaseApi) HandleDelete(ctx *gin.Context) {
 	m := baseApi.Dao.FindByPk(params.Id)
 
 	if _ok, _msg := baseApi.Dao.BeforeDelete(m); !_ok {
-		g3.Error("delete validate failed", zap.String("msg", _msg))
+		g3.ZL().Error("delete validate failed", zap.String("msg", _msg))
 		FailedMessage(ctx, "操作失败:"+_msg)
 		return
 	}
@@ -223,7 +223,7 @@ func (baseApi *BaseApi) HandleDelete(ctx *gin.Context) {
 		baseApi.Dao.AfterDelete(m)
 		SuccessDefault(ctx)
 	} else {
-		g3.Error("delete failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("delete failed. please check", zap.Reflect("data", params))
 		FailedMessage(ctx, "操作失败, 请稍后重试")
 	}
 }
@@ -232,12 +232,12 @@ func (baseApi *BaseApi) HandleRemove(ctx *gin.Context) {
 	params := IdParams{}
 	err := ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		FailedMessage(ctx, "参数错误")
 		return
 	}
 	if baseApi.Dao.CountByPk(params.Id) == 0 {
-		g3.Error("record not exist. please check", zap.Int64("id", params.Id))
+		g3.ZL().Error("record not exist. please check", zap.Int64("id", params.Id))
 		FailedNotFound(ctx)
 		return
 	}
@@ -245,7 +245,7 @@ func (baseApi *BaseApi) HandleRemove(ctx *gin.Context) {
 	m := baseApi.Dao.FindByPk(params.Id)
 
 	if _ok, _msg := baseApi.Dao.BeforeRemove(m); !_ok {
-		g3.Error("remove validate failed", zap.String("msg", _msg))
+		g3.ZL().Error("remove validate failed", zap.String("msg", _msg))
 		FailedMessage(ctx, "操作失败:"+_msg)
 		return
 	}
@@ -254,7 +254,7 @@ func (baseApi *BaseApi) HandleRemove(ctx *gin.Context) {
 		baseApi.Dao.AfterRemove(m)
 		SuccessDefault(ctx)
 	} else {
-		g3.Error("remove failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("remove failed. please check", zap.Reflect("data", params))
 		FailedMessage(ctx, "操作失败, 请稍后重试")
 	}
 }

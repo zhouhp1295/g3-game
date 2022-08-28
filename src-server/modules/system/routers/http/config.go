@@ -59,18 +59,18 @@ func (api *_sysConfigApi) getByCode(ctx *gin.Context) {
 	params := getByCodeParam{}
 	err := net.ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		net.FailedMessage(ctx, "参数错误")
 		return
 	}
 	if len(params.Code) == 0 {
-		g3.Error("code is empty. please check")
+		g3.ZL().Error("code is empty. please check")
 		net.FailedMessage(ctx, "参数错误")
 		return
 	}
 	cnt := dao.SysConfigDao.CountByColumn("code", params.Code)
 	if cnt <= 0 {
-		g3.Error("record not exist. please check", zap.String("code", params.Code))
+		g3.ZL().Error("record not exist. please check", zap.String("code", params.Code))
 		net.FailedNotFound(ctx)
 		return
 	}

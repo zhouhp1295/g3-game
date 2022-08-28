@@ -26,13 +26,13 @@ func getWebConfig() (ContentWebConfigData, bool) {
 	mConfig := new(model.SysConfig)
 	err := crud.DbSess().Where("code = ? and deleted = ?", ContentWebConfigCode, crud.FlagNo).First(mConfig).Error
 	if err != nil {
-		g3.Error("getWebConfig", zap.Error(err))
+		g3.ZL().Error("getWebConfig", zap.Error(err))
 		return ContentWebConfigData{}, false
 	}
 	result := ContentWebConfigData{}
 	err = jsoniter.UnmarshalFromString(mConfig.Value, &result)
 	if err != nil {
-		g3.Error("getWebConfig json", zap.Error(err))
+		g3.ZL().Error("getWebConfig json", zap.Error(err))
 		return result, false
 	}
 	return result, true

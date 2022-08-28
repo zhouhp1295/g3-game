@@ -14,7 +14,6 @@ import (
 	"go.beyondstorage.io/v5/types"
 	"go.uber.org/zap"
 	"os"
-	"os/exec"
 	"strings"
 	"sync"
 )
@@ -41,6 +40,7 @@ var (
 	afterInstallFunctionMutex sync.Mutex
 
 	preStart func()
+	start    func()
 )
 
 func init() {
@@ -129,7 +129,7 @@ func Start() {
 	if err != nil {
 		panic(err)
 	}
-	g3.Info("存储空间", zap.Reflect("Storager", Storager))
+	g3.ZL().Info("存储空间", zap.Reflect("Storager", Storager))
 	// 运行 preStart
 	if preStart != nil {
 		preStart()
@@ -137,16 +137,8 @@ func Start() {
 	for _, f := range preFunctions {
 		f()
 	}
-	if utils.IsMac() {
-		_ = exec.Command("/bin/sh", "-c", `open http://127.0.0.1:`+ServerCfg.HTTPPort).Start()
-	} else if utils.IsWin() {
-		_ = exec.Command("cmd", "/c", `start http://127.0.0.1:`+ServerCfg.HTTPPort).Start()
-	}
-	g3.Info("Application Start",
+	g3.ZL().Info("Application Start",
 		zap.String("Addr", ServerCfg.HTTPAddr),
 		zap.String("Port", ServerCfg.HTTPPort))
-	err = g3.GetGin().Engine.Run(ServerCfg.HTTPAddr + ":" + ServerCfg.HTTPPort)
-	if err != nil {
-		g3.Fatal("Application Stopped", zap.Error(err))
-	}
+	start()
 }

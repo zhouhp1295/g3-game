@@ -11,8 +11,10 @@ import (
 	"github.com/zhouhp1295/g3"
 	"github.com/zhouhp1295/g3-game/utils"
 	"github.com/zhouhp1295/g3/net"
+	"go.uber.org/zap"
 	"gopkg.in/ini.v1"
 	"net/http"
+	"os/exec"
 	"strings"
 )
 
@@ -22,6 +24,7 @@ func init() {
 	App.Version = "v0.0.1"
 	App.RunMode = "dev"
 	preStart = preHttpStart
+	start = startHttp
 }
 
 func loadHttpConfig() {
@@ -70,5 +73,18 @@ func preHttpStart() {
 	// 初始化
 	if IsInstalled() {
 		DoAfterInstall()
+	}
+	// 打开网站
+	if utils.IsMac() {
+		_ = exec.Command("/bin/sh", "-c", `open http://127.0.0.1:`+ServerCfg.HTTPPort).Start()
+	} else if utils.IsWin() {
+		_ = exec.Command("cmd", "/c", `start http://127.0.0.1:`+ServerCfg.HTTPPort).Start()
+	}
+}
+
+func startHttp() {
+	err := g3.GetGin().Engine.Run(ServerCfg.HTTPAddr + ":" + ServerCfg.HTTPPort)
+	if err != nil {
+		g3.ZL().Fatal("Application Stopped", zap.Error(err))
 	}
 }

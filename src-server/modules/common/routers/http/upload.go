@@ -25,13 +25,13 @@ func init() {
 func handleUploadImage(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		g3.Error("can't load file", zap.Error(err))
+		g3.ZL().Error("can't load file", zap.Error(err))
 		net.FailedMessage(ctx, err.Error())
 		return
 	}
 	filePath, msg, ok := service.UploadService.UploadImage(file)
 	if !ok {
-		g3.Error("can't upload file", zap.String("msg", msg), zap.Error(err))
+		g3.ZL().Error("can't upload file", zap.String("msg", msg), zap.Error(err))
 		net.FailedMessage(ctx, msg)
 		return
 	}

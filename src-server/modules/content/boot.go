@@ -29,6 +29,6 @@ func SyncTables() {
 	}
 	err := crud.SyncTables(crud.DbSess(), tables)
 	if err != nil {
-		g3.Fatal("AutoMigrate Content Database", zap.Error(err))
+		g3.ZL().Fatal("AutoMigrate Content Database", zap.Error(err))
 	}
 }

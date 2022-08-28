@@ -41,14 +41,14 @@ func updateWebConfigHandler(ctx *gin.Context) {
 	params := dao.ContentWebConfigData{}
 	err := net.ShouldBind(ctx, &params)
 	if err != nil {
-		g3.Error("parse params failed. please check")
+		g3.ZL().Error("parse params failed. please check")
 		net.FailedMessage(ctx, "参数错误")
 	}
 	msg, ok := dao.ContentConfigDao.UpdateWebConfig(params, ctx.GetInt64(auth.CtxJwtUid))
 	if ok {
 		net.SuccessDefault(ctx)
 	} else {
-		g3.Error("update failed. please check", zap.Reflect("data", params))
+		g3.ZL().Error("update failed. please check", zap.Reflect("data", params))
 		net.FailedMessage(ctx, "操作失败,err="+msg)
 	}
 }

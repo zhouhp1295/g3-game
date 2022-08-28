@@ -36,7 +36,7 @@ func (rg *RGroup) NewJwt(secret string, expires int64) {
 
 func (rg *RGroup) NewJwtToken(uid int64, roles string) (string, error) {
 	if rg.jwt == nil {
-		Error("create token failed ! jwt is nil.")
+		ZL().Error("create token failed ! jwt is nil.")
 		return "", errors.New("jwt is nil")
 	}
 	return rg.jwt.Token(uid, roles)
@@ -55,7 +55,7 @@ func (rg *RGroup) Bind(method, router string, handler gin.HandlerFunc, perms ...
 
 func (rg *RGroup) MakeOpen(routers ...string) {
 	if rg.jwt == nil {
-		Error("make router to open failed ! jwt is nil.")
+		ZL().Error("make router to open failed ! jwt is nil.")
 		return
 	}
 	rg.jwt.AddOpenRouters(routers...)
@@ -63,7 +63,7 @@ func (rg *RGroup) MakeOpen(routers ...string) {
 
 func (rg *RGroup) MakeWhite(routers ...string) {
 	if rg.jwt == nil {
-		Error("make router to white failed ! jwt is nil.")
+		ZL().Error("make router to white failed ! jwt is nil.")
 		return
 	}
 	rg.jwt.AddWhiteRouters(routers...)
@@ -71,7 +71,7 @@ func (rg *RGroup) MakeWhite(routers ...string) {
 
 func (rg *RGroup) ClearRolePerm(role string) {
 	if rg.perms == nil {
-		Error("clear role perm failed ! perms is nil.")
+		ZL().Error("clear role perm failed ! perms is nil.")
 		return
 	}
 	rg.perms.ClearRolePerm(role)
@@ -79,7 +79,7 @@ func (rg *RGroup) ClearRolePerm(role string) {
 
 func (rg *RGroup) ClearAllRolesPerm() {
 	if rg.perms == nil {
-		Error("clear all roles perm failed ! perms is nil.")
+		ZL().Error("clear all roles perm failed ! perms is nil.")
 		return
 	}
 	rg.perms.ClearAllRolesPerm()
@@ -87,7 +87,7 @@ func (rg *RGroup) ClearAllRolesPerm() {
 
 func (rg *RGroup) AddRouterPerms(router string, perms ...string) {
 	if rg.perms == nil {
-		Error("add router perms failed ! perms is nil.")
+		ZL().Error("add router perms failed ! perms is nil.")
 		return
 	}
 	rg.perms.AddRouterPerms(router, perms...)
@@ -95,7 +95,7 @@ func (rg *RGroup) AddRouterPerms(router string, perms ...string) {
 
 func (rg *RGroup) AddRolePerm(role string, perms ...string) {
 	if rg.perms == nil {
-		Error("add role perms failed ! perms is nil.")
+		ZL().Error("add role perms failed ! perms is nil.")
 		return
 	}
 	rg.perms.AddRolePerm(role, perms...)

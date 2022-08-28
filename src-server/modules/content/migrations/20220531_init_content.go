@@ -63,7 +63,7 @@ func M20220531InitContent() func() error {
 		return rootDB.Transaction(func(tx *gorm.DB) error {
 			err := migrations.CreateSystemMenus(tx, contentMenuData20220531)
 			if err != nil {
-				g3.Fatal("20220531_init_content", zap.Error(err))
+				g3.ZL().Fatal("20220531_init_content", zap.Error(err))
 				return err
 			}
 			return nil

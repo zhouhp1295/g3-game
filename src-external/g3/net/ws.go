@@ -48,14 +48,14 @@ type WsWorker struct {
 }
 
 func (w *WsWorker) listen(conn *WsConn) {
-	g3.Info("start listen", zap.String("uuid", conn.Uuid))
+	g3.ZL().Info("start listen", zap.String("uuid", conn.Uuid))
 	for {
 		_, message, err := conn.Conn.ReadMessage()
 		if err != nil {
 			w.OnError(conn, err)
 			break
 		}
-		g3.Debug("on message", zap.String("uuid", conn.Uuid))
+		g3.ZL().Debug("on message", zap.String("uuid", conn.Uuid))
 		if w.OnMessage != nil {
 			w.OnMessage(conn, message)
 		} else {
@@ -68,7 +68,7 @@ func (w *WsWorker) listen(conn *WsConn) {
 
 // handleConnect
 func (w *WsWorker) handleConnect(conn *WsConn) bool {
-	g3.Info("connected",
+	g3.ZL().Info("connected",
 		zap.String("uuid", conn.Uuid),
 		zap.Reflect("query", conn.Query),
 	)
@@ -89,7 +89,7 @@ func (w *WsWorker) handleConnect(conn *WsConn) bool {
 }
 
 func (w *WsWorker) closeConn(conn *WsConn) {
-	g3.Info("connected",
+	g3.ZL().Info("connected",
 		zap.String("uuid", conn.Uuid),
 		zap.Reflect("query", conn.Query),
 	)
@@ -140,7 +140,7 @@ func init() {
 }
 
 func onError(w *WsWorker, conn *WsConn, err error) {
-	g3.Error("connected",
+	g3.ZL().Error("connected",
 		zap.String("uuid", conn.Uuid),
 		zap.Reflect("query", conn.Query),
 		zap.Error(err),

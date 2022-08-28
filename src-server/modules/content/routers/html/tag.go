@@ -26,7 +26,7 @@ func init() {
 func tagHandler(ctx *gin.Context) {
 	view, err := jetEngine().Set.GetTemplate("tag.html")
 	if err != nil {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		errorPage(ctx, err.Error())
 		return
 	}
@@ -46,7 +46,7 @@ func tagHandler(ctx *gin.Context) {
 	err = view.Execute(ctx.Writer, data, nil)
 
 	if err != nil {
-		g3.Error("err", zap.Error(err))
+		g3.ZL().Error("err", zap.Error(err))
 		errorPage(ctx, err.Error())
 	}
 }

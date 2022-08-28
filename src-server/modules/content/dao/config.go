@@ -47,7 +47,7 @@ func (dao *contentConfigDAO) UpdateWebConfig(data ContentWebConfigData, operator
 	if cnt > 0 {
 		err := crud.DbSess().Where("code = ? and deleted = ?", ContentWebConfigCode, crud.FlagNo).First(mConfig).Error
 		if err != nil {
-			g3.Error("UpdateWebConfig db err", zap.Error(err))
+			g3.ZL().Error("UpdateWebConfig db err", zap.Error(err))
 			return err.Error(), false
 		}
 	} else {
@@ -56,7 +56,7 @@ func (dao *contentConfigDAO) UpdateWebConfig(data ContentWebConfigData, operator
 	var err error
 	mConfig.Value, err = jsoniter.MarshalToString(data)
 	if err != nil {
-		g3.Error("UpdateWebConfig MarshalToString", zap.Error(err))
+		g3.ZL().Error("UpdateWebConfig MarshalToString", zap.Error(err))
 		return err.Error(), false
 	}
 	if cnt > 0 {
@@ -65,7 +65,7 @@ func (dao *contentConfigDAO) UpdateWebConfig(data ContentWebConfigData, operator
 		err = crud.DbSess().Create(mConfig).Error
 	}
 	if err != nil {
-		g3.Error("UpdateWebConfig Save", zap.Error(err))
+		g3.ZL().Error("UpdateWebConfig Save", zap.Error(err))
 		return err.Error(), false
 	}
 	clearAllConfigCache()
