@@ -1,6 +1,6 @@
 .install
 upload
-log
+logs
 conf/app.ini
 *.bak
 *.db

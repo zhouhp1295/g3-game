@@ -1,7 +1,9 @@
+// Copyright (c) 554949297@qq.com . 2022-2022 . All rights reserved
+
 package dao
 
 import (
-	"github.com/zhouhp1295/g3-cms/modules/system/model"
+	"github.com/zhouhp1295/g3-game/modules/system/model"
 	"github.com/zhouhp1295/g3/auth"
 	"github.com/zhouhp1295/g3/crud"
 	"github.com/zhouhp1295/g3/helpers"

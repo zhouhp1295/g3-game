@@ -1,8 +1,10 @@
+// Copyright (c) 554949297@qq.com . 2022-2022 . All rights reserved
+
 package dao
 
 import (
 	"fmt"
-	"github.com/zhouhp1295/g3-cms/modules/content/model"
+	"github.com/zhouhp1295/g3-game/modules/content/model"
 	"github.com/zhouhp1295/g3/crud"
 	"github.com/zhouhp1295/g3/helpers"
 	"gorm.io/gorm"

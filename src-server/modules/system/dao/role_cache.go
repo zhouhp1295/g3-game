@@ -1,9 +1,12 @@
+// Copyright (c) 554949297@qq.com . 2022-2022 . All rights reserved
+
 package dao
 
 import (
 	"fmt"
-	"github.com/zhouhp1295/g3-cms/boot"
-	"github.com/zhouhp1295/g3-cms/modules/system/model"
+	"github.com/zhouhp1295/g3"
+	"github.com/zhouhp1295/g3-game/boot"
+	"github.com/zhouhp1295/g3-game/modules/system/model"
 	"github.com/zhouhp1295/g3/crud"
 	"github.com/zhouhp1295/g3/helpers"
 	"github.com/zhouhp1295/lache/driver"
@@ -38,9 +41,10 @@ func listRolePermsFromCache() map[string]CachedRoleData {
 }
 
 func setPerms(roleData map[string]CachedRoleData) {
-	boot.GinCtx().ApiRouter.Perms.ClearAllRolesPerm()
+	rg := g3.GetGin().Group("/api")
+	rg.ClearAllRolesPerm()
 	for _, data := range roleData {
-		boot.GinCtx().ApiRouter.Perms.AddRolePerm(data.Identifier, data.Perms...)
+		rg.AddRolePerm(data.Identifier, data.Perms...)
 	}
 }
 
