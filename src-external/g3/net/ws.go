@@ -21,6 +21,7 @@ type WsConnStatus int
 
 const (
 	Connecting WsConnStatus = iota
+	Authing
 	Connected
 	Closed
 )
@@ -29,20 +30,23 @@ type WsConn struct {
 	Uuid     string
 	Conn     *websocket.Conn
 	Query    map[string]string
-	AuthData map[string]interface{}
+	Data     map[string]interface{}
 	CreateAt time.Time
 	Status   WsConnStatus
 }
 
 type WsWorker struct {
-	Router      string
-	Upgrader    websocket.Upgrader
-	OnConnected func(conn *WsConn)
-	OnClosed    func(conn *WsConn)
-	OnError     func(conn *WsConn, err error)
-	OnAuth      func(conn *WsConn) (map[string]interface{}, bool)
-	OnMessage   func(conn *WsConn, message []byte)
-	ConnHandler WsConnHandler
+	Router string
+
+	upgrader websocket.Upgrader
+
+	onConnected func(conn *WsConn)
+	onClosed    func(conn *WsConn)
+	onError     func(conn *WsConn, err error)
+	onMessage   func(conn *WsConn, message []byte)
+
+	connHandler WsConnHandler
+
 	connections map[string]*WsConn
 	rwMutex     sync.RWMutex
 }
@@ -52,13 +56,21 @@ func (w *WsWorker) listen(conn *WsConn) {
 	for {
 		_, message, err := conn.Conn.ReadMessage()
 		if err != nil {
-			w.OnError(conn, err)
+			w.onError(conn, err)
 			break
 		}
 		g3.ZL().Debug("on message", zap.String("uuid", conn.Uuid))
-		if w.OnMessage != nil {
-			w.OnMessage(conn, message)
+		if w.onMessage != nil {
+			w.onMessage(conn, message)
 		} else {
+			if Authing == conn.Status {
+				// 没注册自定义消息处理, 不进行auth验证
+				conn.Status = Connected
+				_ = conn.Conn.WriteJSON(map[string]interface{}{
+					"msg": "Login Success!",
+				})
+				continue
+			}
 			_ = conn.Conn.WriteJSON(map[string]interface{}{
 				"msg": "Message From Server : " + string(message),
 			})
@@ -72,18 +84,12 @@ func (w *WsWorker) handleConnect(conn *WsConn) bool {
 		zap.String("uuid", conn.Uuid),
 		zap.Reflect("query", conn.Query),
 	)
-	if w.OnAuth != nil {
-		var ok bool
-		conn.AuthData, ok = w.OnAuth(conn)
-		if !ok {
-			return false
-		}
-	} else {
-		conn.AuthData = make(map[string]interface{})
-	}
 	w.rwMutex.Lock()
 	w.connections[conn.Uuid] = conn
-	conn.Status = Connected
+	conn.Status = Authing
+	if w.onConnected != nil {
+		w.onConnected(conn)
+	}
 	w.rwMutex.Unlock()
 	return true
 }
@@ -95,8 +101,8 @@ func (w *WsWorker) closeConn(conn *WsConn) {
 	)
 	w.rwMutex.Lock()
 	if Closed != conn.Status {
-		if w.OnClosed != nil {
-			w.OnClosed(conn)
+		if w.onClosed != nil {
+			w.onClosed(conn)
 		}
 		if conn != nil {
 			_ = conn.Conn.Close()
@@ -112,17 +118,38 @@ type WsConnHandler func(conn *WsConn)
 // WsWorkerOption WsWorkerOption
 type WsWorkerOption func(*WsWorker)
 
-// WithUpgrader WithUpgrader
-func WithUpgrader(up websocket.Upgrader) WsWorkerOption {
+// WithWsUpgrader 自定义upgrader
+func WithWsUpgrader(up websocket.Upgrader) WsWorkerOption {
 	return func(worker *WsWorker) {
-		worker.Upgrader = up
+		worker.upgrader = up
 	}
 }
 
-// WithWsHandler WithWsHandler
-func WithWsHandler(handler WsConnHandler) WsWorkerOption {
+// WithWsConnHandler 自定义conn处理
+func WithWsConnHandler(handler WsConnHandler) WsWorkerOption {
 	return func(worker *WsWorker) {
-		worker.ConnHandler = handler
+		worker.connHandler = handler
+	}
+}
+
+// WithWsConnected 自定义建立链接处理
+func WithWsConnected(handler func(conn *WsConn)) WsWorkerOption {
+	return func(worker *WsWorker) {
+		worker.onConnected = handler
+	}
+}
+
+// WithWsMessaged 自定义消息处理
+func WithWsMessaged(handler func(conn *WsConn, message []byte)) WsWorkerOption {
+	return func(worker *WsWorker) {
+		worker.onMessage = handler
+	}
+}
+
+// WithWsError 自定义错误处理
+func WithWsError(handler func(conn *WsConn, err error)) WsWorkerOption {
+	return func(worker *WsWorker) {
+		worker.onError = handler
 	}
 }
 
@@ -148,8 +175,8 @@ func onError(w *WsWorker, conn *WsConn, err error) {
 	if conn.Conn != nil {
 		_ = conn.Conn.Close()
 	}
-	if w.OnError != nil {
-		w.OnError(conn, err)
+	if w.onError != nil {
+		w.onError(conn, err)
 	}
 }
 
@@ -161,7 +188,7 @@ func HandleWebsocket(router string, opts ...WsWorkerOption) (*WsWorker, error) {
 	workers[router] = true
 	worker := new(WsWorker)
 	worker.Router = router
-	worker.Upgrader = defaultUpgrader()
+	worker.upgrader = defaultUpgrader()
 	worker.connections = make(map[string]*WsConn)
 	for _, opt := range opts {
 		opt(worker)
@@ -173,9 +200,13 @@ func HandleWebsocket(router string, opts ...WsWorkerOption) (*WsWorker, error) {
 		g3Conn.Uuid = fmt.Sprintf("%v", uuid.New())
 		g3Conn.Query = helpers.ParseQueryString(request.RequestURI)
 		g3Conn.CreateAt = time.Now()
-		conn, err := worker.Upgrader.Upgrade(writer, request, nil)
+		conn, err := worker.upgrader.Upgrade(writer, request, nil)
 		if err != nil {
 			onError(worker, g3Conn, err)
+			return
+		}
+		if worker.connHandler != nil {
+			worker.connHandler(g3Conn)
 			return
 		}
 		defer worker.closeConn(g3Conn)
