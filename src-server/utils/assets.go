@@ -4,8 +4,9 @@ package utils
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
-	"github.com/pkg/errors"
+
 	"github.com/zhouhp1295/g3/helpers"
 	"io/ioutil"
 	"mime/multipart"

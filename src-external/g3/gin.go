@@ -3,8 +3,8 @@
 package g3
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"github.com/zhouhp1295/g3/auth"
 	"sync"
 )

@@ -4,7 +4,6 @@ package migrations
 
 import (
 	jsoniter "github.com/json-iterator/go"
-	"github.com/pkg/errors"
 	"github.com/zhouhp1295/g3"
 	"github.com/zhouhp1295/g3-game/modules/system/model"
 	"github.com/zhouhp1295/g3/crud"
@@ -61,7 +60,7 @@ func CreateSysDictType(db *gorm.DB, data string) error {
 	dictTypeList := make([]model.SysDictType, 0)
 	err := jsoniter.UnmarshalFromString(data, &dictTypeList)
 	if err != nil {
-		return errors.Wrap(err, "CreateSysDict UnmarshalFromString Error")
+		return err
 	}
 	if len(dictTypeList) > 0 {
 		err = db.CreateInBatches(dictTypeList, len(dictTypeList)).Error
@@ -76,7 +75,7 @@ func CreateSysDictData(db *gorm.DB, data string) error {
 	dictDataList := make([]model.SysDictData, 0)
 	err := jsoniter.UnmarshalFromString(data, &dictDataList)
 	if err != nil {
-		return errors.Wrap(err, "CreateSysDictData UnmarshalFromString Error")
+		return err
 	}
 	if len(dictDataList) > 0 {
 		err = db.CreateInBatches(dictDataList, len(dictDataList)).Error
@@ -91,7 +90,7 @@ func CreateSysRoles(db *gorm.DB, data string) error {
 	roleList := make([]model.SysRole, 0)
 	err := jsoniter.UnmarshalFromString(data, &roleList)
 	if err != nil {
-		return errors.Wrap(err, "CreateSysRoles UnmarshalFromString Error")
+		return err
 	}
 	if len(roleList) > 0 {
 		return db.CreateInBatches(roleList, len(roleList)).Error
@@ -104,7 +103,7 @@ func CreateSystemMenus(db *gorm.DB, data string) error {
 	menuList := make([]model.SysMenu, 0)
 	err := jsoniter.UnmarshalFromString(data, &menuList)
 	if err != nil {
-		return errors.Wrap(err, "CreateSystemMenus UnmarshalFromString Error")
+		return err
 	}
 	if len(menuList) > 0 {
 		return db.CreateInBatches(menuList, len(menuList)).Error

@@ -4,7 +4,7 @@ package boot
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
+
 	"github.com/zhouhp1295/g3"
 	"github.com/zhouhp1295/g3-game/utils"
 	"gopkg.in/ini.v1"
@@ -96,7 +96,7 @@ func loadConfigs() {
 	}, iniPath)
 
 	if err != nil {
-		panic(errors.Wrap(err, "配置文件解析失败: "+iniPath))
+		panic(err)
 	}
 
 	File.NameMapper = ini.SnackCase
@@ -106,21 +106,21 @@ func loadConfigs() {
 	// *****************************
 
 	if err = File.Section("database").MapTo(&DatabaseCfg); err != nil {
-		panic(errors.Wrap(err, "配置解析失败: database"))
+		panic(err)
 	}
 
 	// ***************************
 	// ----- JwtCfg settings -----
 	// ***************************
 	if err = File.Section("jwt").MapTo(&JwtCfg); err != nil {
-		panic(errors.Wrap(err, "配置解析失败: jwt"))
+		panic(err)
 	}
 
 	// ***************************
 	// ----- StorageCfg settings -----
 	// ***************************
 	if err = File.Section("storage").MapTo(&StorageCfg); err != nil {
-		panic(errors.Wrap(err, "配置解析失败: storage"))
+		panic(err)
 	}
 	if !StorageCfg.check() {
 		panic("请检查storage配置")

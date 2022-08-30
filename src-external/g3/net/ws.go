@@ -5,6 +5,7 @@ package net
 import (
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/zhouhp1295/g3"
@@ -20,10 +21,17 @@ var workers map[string]bool
 type WsConnStatus int
 
 const (
-	Connecting WsConnStatus = iota
-	Authing
-	Connected
-	Closed
+	WsErrorFailed = -1
+	WsErrorOk     = 0
+
+	WsErrorOKMsg = "OK"
+)
+
+const (
+	WsConnecting WsConnStatus = iota
+	WsAuthing
+	WsConnected
+	WsClosed
 )
 
 type WsConn struct {
@@ -33,6 +41,29 @@ type WsConn struct {
 	Data     map[string]interface{}
 	CreateAt time.Time
 	Status   WsConnStatus
+	Mutex    sync.Mutex
+}
+
+func (wc *WsConn) Failed(router string, msg string) {
+	wc.WriteJSON(router, WsErrorFailed, msg, gin.H{})
+}
+
+func (wc *WsConn) Ok(router string, data interface{}) {
+	wc.WriteJSON(router, WsErrorOk, WsErrorOKMsg, data)
+}
+
+func (wc *WsConn) WriteJSON(router string, code int, msg string, data interface{}) {
+	err := wc.Conn.WriteJSON(gin.H{
+		"router": router,
+		"code":   code,
+		"msg":    msg,
+		"data":   data,
+	})
+	if err != nil {
+		g3.ZL().Error("failed to write to websocket connection",
+			zap.String("router", router),
+			zap.Error(err))
+	}
 }
 
 type WsWorker struct {
@@ -63,9 +94,9 @@ func (w *WsWorker) listen(conn *WsConn) {
 		if w.onMessage != nil {
 			w.onMessage(conn, message)
 		} else {
-			if Authing == conn.Status {
+			if WsAuthing == conn.Status {
 				// 没注册自定义消息处理, 不进行auth验证
-				conn.Status = Connected
+				conn.Status = WsConnected
 				_ = conn.Conn.WriteJSON(map[string]interface{}{
 					"msg": "Login Success!",
 				})
@@ -86,7 +117,7 @@ func (w *WsWorker) handleConnect(conn *WsConn) bool {
 	)
 	w.rwMutex.Lock()
 	w.connections[conn.Uuid] = conn
-	conn.Status = Authing
+	conn.Status = WsAuthing
 	if w.onConnected != nil {
 		w.onConnected(conn)
 	}
@@ -94,13 +125,9 @@ func (w *WsWorker) handleConnect(conn *WsConn) bool {
 	return true
 }
 
-func (w *WsWorker) closeConn(conn *WsConn) {
-	g3.ZL().Info("connected",
-		zap.String("uuid", conn.Uuid),
-		zap.Reflect("query", conn.Query),
-	)
+func (w *WsWorker) closeAndDelete(conn *WsConn) {
 	w.rwMutex.Lock()
-	if Closed != conn.Status {
+	if WsClosed != conn.Status {
 		if w.onClosed != nil {
 			w.onClosed(conn)
 		}
@@ -109,7 +136,24 @@ func (w *WsWorker) closeConn(conn *WsConn) {
 		}
 		delete(w.connections, conn.Uuid)
 	}
+	g3.ZL().Info("connection closed",
+		zap.String("uuid", conn.Uuid),
+	)
 	w.rwMutex.Unlock()
+}
+
+func (w *WsWorker) closeConn(conn *WsConn) {
+	g3.ZL().Info("auto closing connection",
+		zap.String("uuid", conn.Uuid),
+	)
+	w.closeAndDelete(conn)
+}
+
+func (w *WsWorker) Close(conn *WsConn) {
+	g3.ZL().Info("manual closing",
+		zap.String("uuid", conn.Uuid),
+	)
+	w.closeAndDelete(conn)
 }
 
 // WsConnHandler WsConnHandler
@@ -196,9 +240,10 @@ func HandleWebsocket(router string, opts ...WsWorkerOption) (*WsWorker, error) {
 	http.HandleFunc(router, func(writer http.ResponseWriter, request *http.Request) {
 		var conn *websocket.Conn
 		g3Conn := new(WsConn)
-		g3Conn.Status = Connecting
+		g3Conn.Status = WsConnecting
 		g3Conn.Uuid = fmt.Sprintf("%v", uuid.New())
 		g3Conn.Query = helpers.ParseQueryString(request.RequestURI)
+		g3Conn.Data = make(map[string]interface{})
 		g3Conn.CreateAt = time.Now()
 		conn, err := worker.upgrader.Upgrade(writer, request, nil)
 		if err != nil {

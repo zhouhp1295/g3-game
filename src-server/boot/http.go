@@ -7,7 +7,7 @@ package boot
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
+
 	"github.com/zhouhp1295/g3"
 	"github.com/zhouhp1295/g3-game/utils"
 	"github.com/zhouhp1295/g3/net"
@@ -37,13 +37,13 @@ func loadHttpConfig() {
 	}, iniPath)
 
 	if err != nil {
-		panic(errors.Wrap(err, "配置文件解析失败: "+iniPath))
+		panic(err)
 	}
 	// ***************************
 	// ----- ServerCfg settings -----
 	// ***************************
 	if err = iniFile.Section("server").MapTo(&ServerCfg); err != nil {
-		panic(errors.Wrap(err, "配置解析失败: server"))
+		panic(err)
 	}
 }
 

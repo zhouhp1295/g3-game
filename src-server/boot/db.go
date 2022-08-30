@@ -3,8 +3,8 @@
 package boot
 
 import (
+	"errors"
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/zhouhp1295/g3"
 	"github.com/zhouhp1295/g3/crud"
 	"go.uber.org/zap"
@@ -88,7 +88,7 @@ func parseDSN(cfg DatabaseConfig) (dsn string, err error) {
 	case SQLite3:
 		dsn = "file:" + g3.AssetPath(cfg.Name+".db") + "?cache=shared&mode=rwc&_busy_timeout=9999999"
 	default:
-		return "", errors.Errorf("unrecognized dialect: %s", cfg.Type)
+		return "", errors.New("unrecognized dialect: " + cfg.Type)
 	}
 
 	return dsn, nil
@@ -97,7 +97,7 @@ func parseDSN(cfg DatabaseConfig) (dsn string, err error) {
 func openDB(cfg DatabaseConfig, ormCfg *gorm.Config) (*gorm.DB, error) {
 	dsn, err := parseDSN(cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "parse DSN")
+		return nil, err
 	}
 
 	var dialector gorm.Dialector
@@ -144,12 +144,12 @@ func initGormDB(w logger.Writer) {
 		},
 	})
 	if err != nil {
-		panic(errors.Wrap(err, "数据库初始化失败"))
+		panic(err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		panic(errors.Wrap(err, "数据库初始化失败"))
+		panic(err)
 	}
 	sqlDB.SetMaxOpenConns(DatabaseCfg.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(DatabaseCfg.MaxIdleConns)
