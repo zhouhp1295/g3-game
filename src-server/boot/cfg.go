@@ -38,7 +38,9 @@ type serverConfig struct {
 var ServerCfg serverConfig
 
 type jwtConfig struct {
-	Secret         string
+	AdminSecret    string
+	GameSecret     string
+	WsSecret       string
 	ExpiredSeconds int64
 }
 

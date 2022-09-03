@@ -32,7 +32,7 @@ func onUserAuth(worker *net.WsWorker, conn *net.WsConn, msg boot.WsRequestMsg) {
 		worker.Close(conn)
 		return
 	}
-	claims, err := helpers.ParseWsJwtToken(token, []byte(boot.JwtCfg.Secret))
+	claims, err := helpers.ParseWsJwtToken(token, []byte(boot.JwtCfg.WsSecret))
 	if err != nil {
 		g3.ZL().Error("user auth failed .token is incorrect. please check.",
 			zap.Reflect("token", token),

@@ -87,7 +87,10 @@ func (w *WsWorker) listen(conn *WsConn) {
 	for {
 		_, message, err := conn.Conn.ReadMessage()
 		if err != nil {
-			w.onError(conn, err)
+			g3.ZL().Debug("on message err", zap.Error(err))
+			if w.onError != nil {
+				w.onError(conn, err)
+			}
 			break
 		}
 		g3.ZL().Debug("on message", zap.String("uuid", conn.Uuid))

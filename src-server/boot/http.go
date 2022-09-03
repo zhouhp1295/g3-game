@@ -69,7 +69,8 @@ func preHttpStart() {
 	g3.SetGin(r)
 	// 安装引导
 	g3.GetGin().Engine.Use(checkInstall)
-	g3.GetGin().Group("/api").NewJwt(JwtCfg.Secret, JwtCfg.ExpiredSeconds)
+	g3.GetGin().Group("/api").NewJwt(JwtCfg.AdminSecret, JwtCfg.ExpiredSeconds)
+	g3.GetGin().Group("/api/game").NewJwt(JwtCfg.GameSecret, JwtCfg.ExpiredSeconds)
 	// 初始化
 	if IsInstalled() {
 		DoAfterInstall()
